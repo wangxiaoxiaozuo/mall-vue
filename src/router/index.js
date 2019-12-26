@@ -3,25 +3,35 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-const login = () => import('@/components/login')
+const Login = () => import('@/components/Login')
 const Admin = () => import('@/components/Admin')
 const Categor = () => import('@/components/item/Categor')
+const Welcome = () => import('@/components/Welcome')
+const BackstageUser = () => import('@/components/user/BackstageUser')
+
 const router = new Router({
   routes: [
     // 登录组件
     {
       path: '/',
-      name: login,
-      component: login
+      name: Login,
+      component: Login
     },
     {
       path: '/login',
-      component: login
+      component: Login
     },
     // 登录组件完成
     {
       path: '/admin',
-      component: Admin
+      component: Admin,
+      redirect: '/welcome',
+      children: [
+        {
+          path: '/welcome',
+          component: Welcome
+        }
+      ]
     },
     {
       path: '/item',
@@ -30,6 +40,16 @@ const router = new Router({
         {
           path: 'categor',
           component: Categor
+        }
+      ]
+    },
+    {
+      path: '/user',
+      component: Admin,
+      children: [
+        {
+          path: 'backstageUser',
+          component: BackstageUser
         }
       ]
     }
@@ -48,7 +68,6 @@ router.beforeEach((to, from, next) => {
     return next()
   }
   const token = window.sessionStorage.getItem('token')
-  console.log(token)
   if (!token) return next('/login')
   next()
 })

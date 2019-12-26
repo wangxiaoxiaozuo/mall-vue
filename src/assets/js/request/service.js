@@ -7,10 +7,10 @@ NProgress.configure({
   ease: 'ease',
   speed: 500,
   showSpinner: false,
-  template: '<div class="bar" role="bar" style="background: #d73564 ;height:5px;"><div class="peg" style="box-shadow: 0 0 10px #fff, 0 0 5px #fff;"></div></div><div class="spinner" role="spinner"><div class="spinner-icon" style="border-top-color:white;border-left-color: white"></div></div>'
+  template: '<div class="bar" role="bar" style="background: #ff4949;height:4px;"><div class="peg" style="box-shadow: 0 0 10px #fff, 0 0 5px #fff;"></div></div><div class="spinner" role="spinner"><div class="spinner-icon" style="border-top-color:white;border-left-color: white"></div></div>'
 
 })
-let baseUrl = '/'
+let baseUrl = '/mall_admin/'
 
 // 创建axios实例
 const service = axios.create({

@@ -12,10 +12,13 @@ export const menu = [
     menuId: 1,
     name: '首页',
     path: '/item/item1',
+    icon: 'fa fa-tree',
     children: [
       {
+        menuId: 6,
         name: '统计',
-        path: '/item/statistics'
+        path: '/item/statistics',
+        icon: 'fa fa-pie-chart'
       }
     ]
   },
@@ -23,39 +26,87 @@ export const menu = [
     menuId: 2,
     name: '商品管理',
     path: '/item/item2',
+    icon: 'fa fa-sort-amount-asc',
     children: [
       {
+        menuId: 7,
         name: '分类管理',
-        path: '/item/categor'
+        path: '/item/categor',
+        icon: 'fa fa-sort-amount-asc'
       },
       {
+        menuId: 8,
         name: '品牌管理',
-        path: ''
+        path: '',
+        icon: 'fa fa-gg-circle'
       },
       {
+        menuId: 9,
         name: '商品列表',
-        path: ''
+        path: '',
+        icon: 'fa fa-bars'
       },
       {
+        menuId: 10,
         name: '规格参数',
-        path: ''
+        path: '',
+        icon: 'fa fa-thermometer-half'
       }
     ]
   },
   {
     menuId: 3,
-    name: '会员管理',
-    path: '/item/item3'
+    name: '用户管理',
+    path: '/user',
+    icon: 'fa fa-users',
+    children: [
+      {
+        menuId: 11,
+        name: '后台用户管理',
+        path: '/user/backstageUser',
+        icon: 'fa fa-user-secret'
+      },
+      {
+        menuId: 12,
+        name: 'Vip用户管理',
+        path: '/item/statistics',
+        icon: 'fa fa-user'
+      }
+    ]
   },
   {
     menuId: 4,
     name: '销售管理',
-    path: '/item/item3'
+    path: '/item/item3',
+    icon: 'fa fa-jpy',
+    children: [
+      {
+        menuId: 13,
+        name: '订单管理',
+        path: '/item/statistics',
+        icon: 'fa fa-pie-chart'
+      }
+    ]
   },
   {
     menuId: 5,
     name: '权限管理',
-    path: '/item/item3'
+    path: '/item/item3',
+    icon: 'fa fa-rub',
+    children: [
+      {
+        menuId: 14,
+        name: '角色列表',
+        path: '/item/statistics',
+        icon: 'fa fa-pie-chart'
+      },
+      {
+        menuId: 15,
+        name: '权限列表',
+        path: '/item/statistics',
+        icon: 'fa fa-pie-chart'
+      }
+    ]
   }
 ]
 // function loginFun (params) {
