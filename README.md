@@ -1,21 +1,7 @@
-# mall-admin1
+##商城管理后台-vue
 
-> A Vue.js project
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+1.商城登录页面绘制
+2.基础路由实现
+3.后台管理首页布局设置
+4.菜单列表数据渲染
+5.后台用户管理实现 --条件查询，新增，删除，更新 （导航组件，卡片布局，表格，分页组件，消息弹出框等组件共同渲染）
