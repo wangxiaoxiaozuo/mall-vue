@@ -83,7 +83,7 @@ export default {
           // 调用登录请求
           const loginResult = true
           if (loginResult) {
-            this.$message.success('登录成功')
+            // this.$message.success('登录成功')
             // 登录成功以后token 保存到sessionStorage中
             sessionStorage.setItem('token', '909090')
             this.$router.push('admin')

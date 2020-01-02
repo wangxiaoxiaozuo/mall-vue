@@ -8,7 +8,8 @@ const Admin = () => import('@/components/Admin')
 const Categor = () => import('@/components/item/Categor')
 const Welcome = () => import('@/components/Welcome')
 const BackstageUser = () => import('@/components/user/BackstageUser')
-
+const Role = () => import('@/components/role/Role')
+const Menu = () => import('@/components/role/Menu')
 const router = new Router({
   routes: [
     // 登录组件
@@ -30,26 +31,22 @@ const router = new Router({
         {
           path: '/welcome',
           component: Welcome
-        }
-      ]
-    },
-    {
-      path: '/item',
-      component: Admin,
-      children: [
+        },
         {
-          path: 'categor',
+          path: '/categor',
           component: Categor
-        }
-      ]
-    },
-    {
-      path: '/user',
-      component: Admin,
-      children: [
+        },
         {
-          path: 'backstageUser',
+          path: '/user/backstageUser',
           component: BackstageUser
+        },
+        {
+          path: '/user/roles',
+          component: Role
+        },
+        {
+          path: '/user/menu',
+          component: Menu
         }
       ]
     }

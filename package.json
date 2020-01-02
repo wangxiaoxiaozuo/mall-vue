@@ -16,6 +16,7 @@
     "font-awesome": "^4.7.0",
     "less-loader": "^5.0.0",
     "nprogress": "^0.2.0",
+    "table-tree-grid": "^0.2.17",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

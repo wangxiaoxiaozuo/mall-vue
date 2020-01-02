@@ -7,6 +7,10 @@ import ElementUI, { Message } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'font-awesome/css/font-awesome.min.css'
 import './assets/css/global.css'
+
+import ZkTable from 'table-tree-grid'
+
+Vue.use(ZkTable)
 Vue.config.productionTip = false
 
 Vue.prototype.$message = Message

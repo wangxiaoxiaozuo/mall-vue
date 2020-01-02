@@ -91,19 +91,19 @@ export const menu = [
   {
     menuId: 5,
     name: '权限管理',
-    path: '/item/item3',
+    path: '',
     icon: 'fa fa-rub',
     children: [
       {
         menuId: 14,
-        name: '角色列表',
-        path: '/item/statistics',
+        name: '角色管理',
+        path: '/user/roles',
         icon: 'fa fa-pie-chart'
       },
       {
         menuId: 15,
-        name: '权限列表',
-        path: '/item/statistics',
+        name: '菜单管理',
+        path: '/user/menu',
         icon: 'fa fa-pie-chart'
       }
     ]

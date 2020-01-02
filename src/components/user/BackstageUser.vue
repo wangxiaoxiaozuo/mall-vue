@@ -22,14 +22,14 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="dialogVisible=true">添加用户</el-button>
+          <el-button type="primary" @click="showAddUserForm">添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 数据展示区域 -->
-      <el-table :data="userList" border style="width: 100%" stripe>
+      <el-table :data="userList" border style="width: 100%" stripe v-loading="loading">
         <el-table-column prop="userName" label="用户姓名" width="180"></el-table-column>
         <el-table-column prop="realName" label="真实姓名" width="180"></el-table-column>
-        <el-table-column prop="sex" label="性别">
+        <el-table-column prop="sex" label="性别" width="70px">
           <template slot-scope="scope">
             <span v-if="scope.row.sex==='0'">男</span>
             <span v-else>女</span>
@@ -63,15 +63,15 @@
               size="mini"
               @click="deleteUser(scope.row.userId)"
             ></el-button>
-            <el-tooltip
+            <!-- <el-tooltip
               class="item"
               effect="dark"
-              content="权限设置 暂为开发"
+              content="分配角色 开发中"
               placement="top"
               :enterable="false"
             >
               <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>
+            </el-tooltip>-->
           </template>
         </el-table-column>
       </el-table>
@@ -112,6 +112,17 @@
         <el-form-item label="手机号码" prop="phone">
           <el-input v-model="addUserForm.phone"></el-input>
         </el-form-item>
+        <!-- 权限选择 -->
+        <el-form-item label="权限选择">
+          <el-select v-model="addUserForm.roleIds" multiple placeholder="请选择" size="medium">
+            <el-option
+              v-for="item in roleData"
+              :key="item.roleId"
+              :label="item.roleName"
+              :value="item.roleId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -150,6 +161,17 @@
         <el-form-item label="手机号码" prop="phone">
           <el-input v-model="editUserForm.phone"></el-input>
         </el-form-item>
+        <!-- 权限选择 -->
+        <el-form-item label="权限选择">
+          <el-select v-model="editUserForm.roleIds" multiple placeholder="请选择" size="medium">
+            <el-option
+              v-for="item in roleData"
+              :key="item.roleId"
+              :label="item.roleName"
+              :value="item.roleId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -161,8 +183,9 @@
 
 <script>
 import { getUserList, addUser, changeUserState, deleteUserById, updateUserById } from '@/assets/js/api/backstageUser'
+import { getRoleList } from '@/assets/js/api/role.js'
 export default {
-  data () {
+  data() {
     return {
       userParam: {
         condition: '',
@@ -173,13 +196,15 @@ export default {
       total: 0,
       dialogVisible: false,
       editDialogVisible: false,
+      loading: true,
       addUserForm: {
         userName: '',
         password: '',
         realName: '',
         sex: '0',
         mail: '',
-        phone: ''
+        phone: '',
+        roleIds: []
       },
       editUserForm: {
         userName: '',
@@ -188,34 +213,37 @@ export default {
         sex: '0',
         mail: '',
         phone: '',
-        userId: ''
+        userId: '',
+        roleIds: []
       },
       addFormRules: {
         userName: [{ required: true, message: '请填写用户名称', trigger: 'blur' },
-          { min: 3,
-            max: 10,
-            message: '用户名称在3到10个字符之间',
-            trigger: 'blur' }],
+        {          min: 3,
+          max: 10,
+          message: '用户名称在3到10个字符之间',
+          trigger: 'blur'        }],
         password: [
           { required: true, message: '请填写密码', trigger: 'blur' },
-          { min: 6,
+          {            min: 6,
             max: 15,
             message: '用户密码在6到15个字符之间',
-            trigger: 'blur' }
+            trigger: 'blur'          }
         ],
         mail: [{ required: true, message: '请填写邮箱', trigger: 'blur' }],
         phone: [{ required: true, message: '请填写手机号码', trigger: 'blur' }]
-      }
+      },
+      roleData: []
     }
   },
   methods: {
     // 获取用户列表
-    async getUserList () {
+    async getUserList() {
       const { data: res } = await getUserList(this.userParam)
       this.userList = res.records
       this.total = res.total
+      this.loading = false
     },
-    changeUserState (userInfo) {
+    changeUserState(userInfo) {
       // 锁定用户/解锁用户
       changeUserState(userInfo.userId, userInfo.locked).then((res) => {
         if (res.status === 200) {
@@ -227,39 +255,41 @@ export default {
       })
     },
     // 监听每页条数变更事件
-    handleSizeChange (newSize) {
+    handleSizeChange(newSize) {
       this.userParam.size = newSize
       this.getUserList()
     },
     // 监听页数变更事件
-    handleCurrentChange (newPage) {
+    handleCurrentChange(newPage) {
       this.userParam.page = newPage
       this.getUserList()
     },
     // 添加用户
-    submitForm () {
+    submitForm() {
       addUser(this.addUserForm).then((res) => {
         // 添加成功关闭对话框
         if (res.status === 200) {
           this.$message.success('添加用户成功')
           this.getUserList()
+          this.dialogVisible = false
+          this.$refs.addFormRef.resetFields()
         } else {
           this.$message.error('添加用户失败')
         }
       })
     },
     // 监听添加表单关闭事件
-    handleClose () {
+    handleClose() {
       this.dialogVisible = false
       this.$refs.addFormRef.resetFields()
     },
     // 监听修改表单事件
-    editHandleClose () {
+    editHandleClose() {
       this.editDialogVisible = false
       this.$refs.editFormRef.resetFields()
     },
     // 删除用户
-    deleteUser (userId) {
+    deleteUser(userId) {
       this.$confirm('确认删除该用户吗？')
         .then(_ => {
           deleteUserById(userId).then((res) => {
@@ -276,7 +306,7 @@ export default {
         })
     },
     // 更新用户
-    showEditUserForm (userInfo) {
+    showEditUserForm(userInfo) {
       // 显示更新用户对话框
       this.editDialogVisible = true
       // 编辑表单赋值
@@ -287,8 +317,9 @@ export default {
       this.editUserForm.mail = userInfo.mail
       this.editUserForm.phone = userInfo.phone
       this.editUserForm.userId = userInfo.userId
+      this.editUserForm.roleIds = userInfo.roleIds
     },
-    submitEditForm () {
+    submitEditForm() {
       updateUserById(this.editUserForm).then((res) => {
         if (res.status === 200) {
           this.$message.success('更新用户成功')
@@ -298,14 +329,23 @@ export default {
           this.$message.error('更新用户失败')
         }
       })
+    },
+    showAddUserForm() {
+      this.dialogVisible = true
     }
   },
-  created () {
+  created() {
     // 页面加载时查询用户数据
     this.getUserList()
+    getRoleList().then((res) => {
+      this.roleData = res.data
+    })
   }
 }
 </script>
 
 <style>
+.el-select {
+  width: 300px;
+}
 </style>
