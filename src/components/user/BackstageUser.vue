@@ -218,16 +218,16 @@ export default {
       },
       addFormRules: {
         userName: [{ required: true, message: '请填写用户名称', trigger: 'blur' },
-        {          min: 3,
-          max: 10,
-          message: '用户名称在3到10个字符之间',
-          trigger: 'blur'        }],
+          { min: 3,
+            max: 20,
+            message: '用户名称在3到10个字符之间',
+            trigger: 'blur' }],
         password: [
           { required: true, message: '请填写密码', trigger: 'blur' },
-          {            min: 6,
+          { min: 6,
             max: 15,
             message: '用户密码在6到15个字符之间',
-            trigger: 'blur'          }
+            trigger: 'blur' }
         ],
         mail: [{ required: true, message: '请填写邮箱', trigger: 'blur' }],
         phone: [{ required: true, message: '请填写手机号码', trigger: 'blur' }]

@@ -7,32 +7,44 @@ export const getRoleList = () => {
   })
 }
 
-// export const addUser = (userInfo) => {
-//   return request({
-//     url: '/sysUser',
-//     method: 'post',
-//     data: userInfo
-//   })
-// }
+// 获取该权限ID对应的所有菜单ID roleResource
+export const getResourceIdsByRoleId = roleId => {
+  return request({
+    url: `/roleResource/${roleId}/resources`,
+    method: 'get'
+  })
+}
 
-// export const changeUserState = (userId, userState) => {
-//   return request({
-//     url: `/sysUser/${userId}/${userState}`,
-//     method: 'put'
-//   })
-// }
+// 权限绑定菜单 ==> 授权
+export const grantMenuToRoleId = (roleId, menuIds) => {
+  return request({
+    url: `/roleResource/${roleId}`,
+    method: 'post',
+    data: menuIds
+  })
+}
 
-// export const deleteUserById = (userId) => {
-//   return request({
-//     url: `/sysUser/${userId}`,
-//     method: 'delete'
-//   })
-// }
+// 添加角色
+export const addRole = role => {
+  return request({
+    url: '/sysRole',
+    method: 'post',
+    data: role
+  })
+}
 
-// export const updateUserById = (userInfo) => {
-//   return request({
-//     url: `/sysUser/${userInfo.userId}`,
-//     method: 'put',
-//     data: userInfo
-//   })
-// }
+// 修改角色
+export const updateRoleById = role => {
+  return request({
+    url: `/sysRole/${role.roleId}`,
+    method: 'put',
+    data: role
+  })
+}
+// 删除角色
+export const deleteUserById = roleId => {
+  return request({
+    url: `/sysRole/${roleId}`,
+    method: 'delete'
+  })
+}

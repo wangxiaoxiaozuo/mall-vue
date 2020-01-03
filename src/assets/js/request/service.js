@@ -7,8 +7,8 @@ NProgress.configure({
   ease: 'ease',
   speed: 500,
   showSpinner: false,
-  template: '<div class="bar" role="bar" style="background: #ff4949;height:4px;"><div class="peg" style="box-shadow: 0 0 10px #fff, 0 0 5px #fff;"></div></div><div class="spinner" role="spinner"><div class="spinner-icon" style="border-top-color:white;border-left-color: white"></div></div>'
-
+  template:
+    '<div class="bar" role="bar" style="background: #ff4949;height:4px;"><div class="peg" style="box-shadow: 0 0 10px #fff, 0 0 5px #fff;"></div></div><div class="spinner" role="spinner"><div class="spinner-icon" style="border-top-color:white;border-left-color: white"></div></div>'
 })
 let baseUrl = '/mall_admin/'
 
@@ -20,14 +20,17 @@ const service = axios.create({
 })
 // request拦截器
 
-service.interceptors.request.use(config => {
-  // 此处进行token等数据处理
-  NProgress.start()
-  return config
-}, error => {
-  // Do something with request error
-  Promise.reject(error)
-})
+service.interceptors.request.use(
+  config => {
+    // 此处进行token等数据处理
+    NProgress.start()
+    return config
+  },
+  error => {
+    // Do something with request error
+    Promise.reject(error)
+  }
+)
 
 service.interceptors.response.use(
   res => {
@@ -44,7 +47,7 @@ service.interceptors.response.use(
     if (status === 404) {
       message = '404,你访问的服务不存在'
     } else {
-      message = res.data.error_message
+      message = res.data.msg
     }
     message = message || '服务器连接已中断,请稍后再试'
     // 如果请求为非200否者默认统一处理
