@@ -3,8 +3,8 @@
     <!-- 导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>系统管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>后台用户管理</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 数据显示区域 -->
@@ -18,20 +18,56 @@
             :clearable="true"
             @clear="getUserList"
           >
-            <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              @click="getUserList"
+            ></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="showAddUserForm">添加用户</el-button>
+          <el-button type="primary" @click="showAddUserForm"
+            >添加用户</el-button
+          >
         </el-col>
       </el-row>
       <!-- 数据展示区域 -->
-      <el-table :data="userList" border style="width: 100%" stripe v-loading="loading">
-        <el-table-column prop="userName" label="用户姓名" width="180"></el-table-column>
-        <el-table-column prop="realName" label="真实姓名" width="180"></el-table-column>
+      <el-table
+        :data="userList"
+        border
+        style="width: 100%"
+        stripe
+        v-loading="loading"
+      >
+        <el-table-column type="expand">
+          <template slot-scope="scope">
+            <el-row :gutter="10">
+              <el-col
+                :span="2"
+                v-for="item in scope.row.roleList"
+                :key="item.userId"
+              >
+                <el-tag type="warning">{{ item.roleName }}</el-tag>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col> </el-col>
+            </el-row>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="userName"
+          label="用户姓名"
+          width="180"
+        ></el-table-column>
+        <el-table-column
+          prop="realName"
+          label="真实姓名"
+          width="180"
+        ></el-table-column>
         <el-table-column prop="sex" label="性别" width="70px">
           <template slot-scope="scope">
-            <span v-if="scope.row.sex==='0'">男</span>
+            <span v-if="scope.row.sex === '0'">男</span>
             <span v-else>女</span>
           </template>
         </el-table-column>
@@ -63,15 +99,20 @@
               size="mini"
               @click="deleteUser(scope.row.userId)"
             ></el-button>
-            <!-- <el-tooltip
+            <el-tooltip
               class="item"
               effect="dark"
-              content="分配角色 开发中"
+              content="分配角色"
               placement="top"
               :enterable="false"
             >
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>-->
+              <el-button
+                type="warning"
+                icon="el-icon-setting"
+                size="mini"
+                @click="showGrantRoleForm(scope.row.userId)"
+              ></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -88,9 +129,19 @@
     </el-card>
 
     <!-- 添加用户弹出框 -->
-    <el-dialog title="添加用户" :visible.sync="dialogVisible" width="35%" :before-close="handleClose">
+    <el-dialog
+      title="添加用户"
+      :visible.sync="dialogVisible"
+      width="35%"
+      :before-close="handleClose"
+    >
       <!-- 添加用户表单 -->
-      <el-form label-width="100px" :model="addUserForm" :rules="addFormRules" ref="addFormRef">
+      <el-form
+        label-width="100px"
+        :model="addUserForm"
+        :rules="addFormRules"
+        ref="addFormRef"
+      >
         <el-form-item label="用户名称" prop="userName">
           <el-input v-model="addUserForm.userName"></el-input>
         </el-form-item>
@@ -112,17 +163,6 @@
         <el-form-item label="手机号码" prop="phone">
           <el-input v-model="addUserForm.phone"></el-input>
         </el-form-item>
-        <!-- 权限选择 -->
-        <el-form-item label="权限选择">
-          <el-select v-model="addUserForm.roleIds" multiple placeholder="请选择" size="medium">
-            <el-option
-              v-for="item in roleData"
-              :key="item.roleId"
-              :label="item.roleName"
-              :value="item.roleId"
-            ></el-option>
-          </el-select>
-        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -139,7 +179,12 @@
       :before-close="editHandleClose"
     >
       <!-- 添加用户表单 -->
-      <el-form label-width="100px" :model="editUserForm" :rules="addFormRules" ref="editFormRef">
+      <el-form
+        label-width="100px"
+        :model="editUserForm"
+        :rules="addFormRules"
+        ref="editFormRef"
+      >
         <el-form-item label="用户名称" prop="userName">
           <el-input v-model="editUserForm.userName"></el-input>
         </el-form-item>
@@ -161,9 +206,28 @@
         <el-form-item label="手机号码" prop="phone">
           <el-input v-model="editUserForm.phone"></el-input>
         </el-form-item>
-        <!-- 权限选择 -->
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitEditForm">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 授权消息框 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="grantFormDialogVisible"
+      width="30%"
+      @close="grantFormFormClose"
+    >
+      <el-form ref="grantFormRef" :model="grantFormForm" label-width="80px">
         <el-form-item label="权限选择">
-          <el-select v-model="editUserForm.roleIds" multiple placeholder="请选择" size="medium">
+          <el-select
+            v-model="grantFormForm.roleIds"
+            multiple
+            placeholder="请选择"
+            size="medium"
+          >
             <el-option
               v-for="item in roleData"
               :key="item.roleId"
@@ -174,15 +238,22 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitEditForm">确 定</el-button>
+        <el-button @click="grantFormDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="grant">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getUserList, addUser, changeUserState, deleteUserById, updateUserById } from '@/assets/js/api/backstageUser'
+import {
+  getUserList,
+  addUser,
+  changeUserState,
+  deleteUserById,
+  updateUserById,
+  grantUserRole
+} from '@/assets/js/api/backstageUser'
 import { getRoleList } from '@/assets/js/api/role.js'
 export default {
   data() {
@@ -203,8 +274,7 @@ export default {
         realName: '',
         sex: '0',
         mail: '',
-        phone: '',
-        roleIds: []
+        phone: ''
       },
       editUserForm: {
         userName: '',
@@ -213,26 +283,36 @@ export default {
         sex: '0',
         mail: '',
         phone: '',
-        userId: '',
-        roleIds: []
+        userId: ''
       },
       addFormRules: {
-        userName: [{ required: true, message: '请填写用户名称', trigger: 'blur' },
-          { min: 3,
+        userName: [
+          { required: true, message: '请填写用户名称', trigger: 'blur' },
+          {
+            min: 3,
             max: 20,
             message: '用户名称在3到10个字符之间',
-            trigger: 'blur' }],
+            trigger: 'blur'
+          }
+        ],
         password: [
           { required: true, message: '请填写密码', trigger: 'blur' },
-          { min: 6,
+          {
+            min: 6,
             max: 15,
             message: '用户密码在6到15个字符之间',
-            trigger: 'blur' }
+            trigger: 'blur'
+          }
         ],
         mail: [{ required: true, message: '请填写邮箱', trigger: 'blur' }],
         phone: [{ required: true, message: '请填写手机号码', trigger: 'blur' }]
       },
-      roleData: []
+      roleData: [],
+      grantFormDialogVisible: false,
+      selectUserId: null,
+      grantFormForm: {
+        roleIds: []
+      }
     }
   },
   methods: {
@@ -245,7 +325,7 @@ export default {
     },
     changeUserState(userInfo) {
       // 锁定用户/解锁用户
-      changeUserState(userInfo.userId, userInfo.locked).then((res) => {
+      changeUserState(userInfo.userId, userInfo.locked).then(res => {
         if (res.status === 200) {
           this.$message.success('更新成功')
           this.getUserList()
@@ -266,7 +346,7 @@ export default {
     },
     // 添加用户
     submitForm() {
-      addUser(this.addUserForm).then((res) => {
+      addUser(this.addUserForm).then(res => {
         // 添加成功关闭对话框
         if (res.status === 200) {
           this.$message.success('添加用户成功')
@@ -292,7 +372,7 @@ export default {
     deleteUser(userId) {
       this.$confirm('确认删除该用户吗？')
         .then(_ => {
-          deleteUserById(userId).then((res) => {
+          deleteUserById(userId).then(res => {
             if (res.status === 200) {
               this.$message.success('删除用户成功')
               this.getUserList()
@@ -317,10 +397,9 @@ export default {
       this.editUserForm.mail = userInfo.mail
       this.editUserForm.phone = userInfo.phone
       this.editUserForm.userId = userInfo.userId
-      this.editUserForm.roleIds = userInfo.roleIds
     },
     submitEditForm() {
-      updateUserById(this.editUserForm).then((res) => {
+      updateUserById(this.editUserForm).then(res => {
         if (res.status === 200) {
           this.$message.success('更新用户成功')
           this.getUserList()
@@ -332,14 +411,34 @@ export default {
     },
     showAddUserForm() {
       this.dialogVisible = true
+    },
+    showGrantRoleForm(userId) {
+      this.grantFormDialogVisible = true
+      // 加载权限列表
+      getRoleList().then(res => {
+        this.roleData = res.data
+      })
+      this.selectUserId = userId
+    },
+    grantFormFormClose() {
+      this.grantFormDialogVisible = false
+      this.$refs.grantFormRef.resetFields()
+    },
+    grant() {
+      grantUserRole(this.selectUserId, this.grantFormForm.roleIds).then(res => {
+        if (res.status === 200) {
+          this.$message.success('授权角色成功')
+          this.grantFormDialogVisible = false
+          this.userList = this.getUserList()
+        } else {
+          this.$message.error('授权角色失败')
+        }
+      })
     }
   },
   created() {
     // 页面加载时查询用户数据
     this.getUserList()
-    getRoleList().then((res) => {
-      this.roleData = res.data
-    })
   }
 }
 </script>

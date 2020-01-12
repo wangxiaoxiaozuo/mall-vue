@@ -15,15 +15,24 @@
       >
         <!-- 用户名 -->
         <el-form-item prop="username">
-          <el-input prefix-icon="iconfont icon-denglu" v-model="form.username"></el-input>
+          <el-input
+            prefix-icon="iconfont icon-denglu"
+            v-model="form.username"
+          ></el-input>
         </el-form-item>
         <!-- 用户密码 -->
         <el-form-item prop="password">
-          <el-input prefix-icon="iconfont icon-mima" v-model="form.password" type="password"></el-input>
+          <el-input
+            prefix-icon="iconfont icon-mima"
+            v-model="form.password"
+            type="password"
+          ></el-input>
         </el-form-item>
         <!-- 按钮区域 -->
         <el-form-item class="btns">
-          <el-button type="primary" @click="login" class="login_btn">登录</el-button>
+          <el-button type="primary" @click="login" class="login_btn"
+            >登录</el-button
+          >
         </el-form-item>
       </el-form>
       <div class="footer">
@@ -53,8 +62,12 @@
 </template>
 
 <script>
+import { loginApi } from '@/assets/js/api/index.js'
+import { mapMutations } from 'vuex'
+import { getRouterList } from '@/assets/js/api/menu.js'
+import router from '@/router/index.js'
 export default {
-  data () {
+  data() {
     return {
       form: {
         username: 'admin',
@@ -73,29 +86,61 @@ export default {
     }
   },
   methods: {
-    restLoginForm () {
+    ...mapMutations(['saveUserId']),
+    restLoginForm() {
       this.$refs.loginFormRef.resetFields()
     },
-    login () {
+    login() {
       // 表单预验证
-      this.$refs.loginFormRef.validate((validated) => {
+      this.$refs.loginFormRef.validate(validated => {
         if (validated) {
           // 调用登录请求
-          const loginResult = true
-          if (loginResult) {
-            // this.$message.success('登录成功')
-            // 登录成功以后token 保存到sessionStorage中
-            sessionStorage.setItem('token', '909090')
-            this.$router.push('admin')
-            // 跳转到主页
-          } else {
-            this.$message.error('登录失败')
-          }
+          // sessionStorage.setItem('token', '909090')
+          // this.$router.push('admin')
+          // const userInfo = { 'username': this.form.username, 'password': this.form.password }
+          // console.log(userInfo)
+          loginApi(this.form).then(res => {
+            if (res.status === 200) {
+              this.$store.commit('saveUserId', res.data)
+              window.sessionStorage.setItem('userId', res.data)
+              this.$router.push('/admin')
+            } else {
+              this.$message.error('登录失败')
+            }
+          })
         }
       })
     }
-  }
+  },
+  created() {
+    // 加载动态路由
+    getRouterList().then(res => {
+      const childrenRoute = []
+      childrenRoute.push({
+        path: '/welcome',
+        component: () => import('@/components/Welcome')
+      })
+      res.data.forEach(menu => {
+        console.log(menu)
+        childrenRoute.push({
+          path: `${menu.path}`,
+          component: () => import(`../${menu.component}.vue`)
+        })
+      })
 
+      console.log(childrenRoute)
+      // 构建动态路由
+      const routerlu = [
+        {
+          path: '/admin',
+          component: () => import('@/components/Admin'),
+          redirect: '/welcome',
+          children: childrenRoute
+        }
+      ]
+      router.addRoutes(routerlu)
+    })
+  }
 }
 </script>
 
@@ -169,10 +214,6 @@ export default {
   padding: 0 20px;
   box-sizing: border-box;
 }
-// .btns {
-//   display: flex;
-//   justify-content: flex-end;
-// }
 .login_btn {
   width: 80%;
   text-align: center;

@@ -1,6 +1,6 @@
 import request from '@/assets/js/request/service'
 
-export const getMenuListByPage = (query) => {
+export const getMenuListByPage = query => {
   return request({
     url: '/sysResource/page',
     method: 'get',
@@ -15,7 +15,7 @@ export const getRootMenuList = () => {
   })
 }
 
-export const addMenu = (menu) => {
+export const addMenu = menu => {
   return request({
     url: '/sysResource',
     method: 'post',
@@ -23,14 +23,14 @@ export const addMenu = (menu) => {
   })
 }
 
-export const deleteMenuById = (menuId) => {
+export const deleteMenuById = menuId => {
   return request({
     url: `/sysResource/${menuId}`,
     method: 'delete'
   })
 }
 
-export const updateMenuById = (menu) => {
+export const updateMenuById = menu => {
   return request({
     url: `/sysResource/${menu.menuId}`,
     method: 'put',
@@ -48,6 +48,20 @@ export const getMenuSelect = () => {
 export const getMenuList = () => {
   return request({
     url: '/sysResource/menuList',
+    method: 'get'
+  })
+}
+
+export const getOwnMenuByUserId = userId => {
+  return request({
+    url: `/sysResource/${userId}/menuList`,
+    method: 'get'
+  })
+}
+
+export const getRouterList = () => {
+  return request({
+    url: '/sysResource/routerList',
     method: 'get'
   })
 }

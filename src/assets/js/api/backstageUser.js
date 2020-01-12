@@ -37,3 +37,11 @@ export const updateUserById = userInfo => {
     data: userInfo
   })
 }
+// 用户授权角色
+export const grantUserRole = (userId, roleIds) => {
+  return request({
+    url: `/sysUser/${userId}/role`,
+    method: 'put',
+    data: roleIds
+  })
+}

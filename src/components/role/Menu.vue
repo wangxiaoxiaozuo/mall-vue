@@ -3,7 +3,7 @@
     <!-- 导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item>系统管理</el-breadcrumb-item>
       <el-breadcrumb-item>菜单列表</el-breadcrumb-item>
     </el-breadcrumb>
 
@@ -17,108 +17,110 @@
             :clearable="true"
             @clear="loadMenuList"
           >
-            <el-button slot="append" icon="el-icon-search" @click="loadMenuList"></el-button>
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              @click="loadMenuList"
+            ></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
           <el-button type="primary" @click="showMenuForm">添加菜单</el-button>
         </el-col>
       </el-row>
+      <!-- table tree -->
+      <zk-table
+        :data="tableData"
+        :columns="columns"
+        border
+        stripe
+        tree-type
+        :selection-type="false"
+        :expand-type="false"
+        :show-index="true"
+        index-text="#"
+      >
+        <template slot="icon" slot-scope="scope">
+          <i :class="scope.row.icon"></i>
+        </template>
+        <template slot="path" slot-scope="scope">
+          <el-tag type="success" v-if="scope.row.path === ''">目录</el-tag>
+          <el-tag type="danger" v-else>{{ scope.row.path }}</el-tag>
+        </template>
 
-      <el-table :data="tableData" style="width: 100%" stripe border>
-        <el-table-column type="expand">
-          <template slot-scope="scope">
-            <el-row>
-              <el-col :span="5" class="v-center">
-                <el-tag closable type="primary">{{scope.row.label}}</el-tag>
-                <i class="el-icon-caret-right"></i>
-              </el-col>
-              <el-col :span="19">
-                <el-row
-                  :class="['btbottom',index===0?'bttop':'','v-center']"
-                  v-for="(item,index) in scope.row.children"
-                  :key="item.value"
-                >
-                  <el-col :span="5">
-                    <el-tag closable type="warning">{{item.label}}</el-tag>
-                    <i class="el-icon-caret-right"></i>
-                  </el-col>
-                  <el-col :span="18">
-                    <el-tag
-                      closable
-                      type="success"
-                      v-for="itemSub in item.children"
-                      :key="itemSub.value"
-                    >{{itemSub.label}}</el-tag>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-          </template>
-        </el-table-column>
-        <el-table-column prop="label" label="菜单名称"></el-table-column>
-        <el-table-column prop="path" label="菜单URL"></el-table-column>
-        <el-table-column prop="component" label="菜单组件"></el-table-column>
-        <el-table-column prop="icon" label="图标">
-          <template slot-scope="scope">
-            <i :class="scope.row.icon"></i>
-          </template>
-        </el-table-column>
-        <el-table-column prop="type" label="菜单类型">
-          <template slot-scope="scope">
-            <el-tag type="success" v-if="scope.row.type==='0'">目录</el-tag>
-            <el-tag type="info" v-else-if="scope.row.type==='1'">菜单</el-tag>
-            <el-tag type="warning" v-else>按钮</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="180">
-          <template>
-            <el-button size="mini" type="primary" icon="el-icon-edit"></el-button>
-            <el-button size="mini" type="danger" icon="el-icon-delete"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+        <template slot="opera" slot-scope="scope">
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            @click="deleteMenu(scope.row.menuId)"
+            size="mini"
+          ></el-button>
+        </template>
+      </zk-table>
     </el-card>
 
     <el-dialog
       title="添加菜单"
       :visible.sync="menuFormDialogVisible"
       width="35%"
-      :before-close="handleClose"
+      @close="handleClose"
     >
       <!-- 添加菜单表单 -->
       <el-form label-width="100px" :model="menuForm" ref="menuFormRef">
-        <el-form-item label="菜单名称" prop="label">
-          <el-input v-model="menuForm.label"></el-input>
-        </el-form-item>
-        <el-form-item label="菜单URL" prop="path">
-          <el-input v-model="menuForm.path"></el-input>
-        </el-form-item>
-        <el-form-item label="组件名称" prop="component">
-          <el-input v-model="menuForm.component"></el-input>
-        </el-form-item>
-        <el-form-item label="父菜单ID" prop="parentId">
-          <!-- <el-input v-model="menuForm.parentId"></el-input> -->
-          <el-cascader
-            :options="options"
-            :show-all-levels="true"
-            ref="cascader"
-            @change="handleItemChange"
-            :props="{ checkStrictly: true,value:'value' }"
-          ></el-cascader>
-        </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <el-input v-model="menuForm.icon"></el-input>
-        </el-form-item>
-        <el-form-item label="排序值" prop="sort">
-          <el-slider v-model="menuForm.sort" show-input :max="50" input-size="mini"></el-slider>
-        </el-form-item>
         <el-form-item label="菜单类型" prop="type">
           <el-radio-group v-model="menuForm.type" size="mini">
             <el-radio-button label="0">目录</el-radio-button>
             <el-radio-button label="1">菜单</el-radio-button>
             <el-radio-button label="2">按钮</el-radio-button>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item
+          label="父菜单ID"
+          prop="parentId"
+          v-if="menuForm.type != 0"
+        >
+          <el-select v-model="menuForm.parentId" clearable placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.menuId"
+              :label="item.label"
+              :value="item.menuId"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="按钮名称"
+          prop="label"
+          v-if="menuForm.type === '2'"
+        >
+          <el-input v-model="menuForm.label"></el-input>
+        </el-form-item>
+        <el-form-item label="菜单名称" prop="label" v-else>
+          <el-input v-model="menuForm.label"></el-input>
+        </el-form-item>
+
+        <el-form-item label="菜单URL" prop="path" v-if="menuForm.type != 0">
+          <el-input v-model="menuForm.path"></el-input>
+        </el-form-item>
+
+        <el-form-item
+          label="组件名称"
+          prop="component"
+          v-if="menuForm.type === '1'"
+        >
+          <el-input v-model="menuForm.component"></el-input>
+        </el-form-item>
+        <el-form-item label="图标" prop="icon" v-if="menuForm.type != 2">
+          <icon-picker v-model="menuForm.icon"></icon-picker>
+        </el-form-item>
+        <el-form-item label="排序值" prop="sort" v-if="menuForm.type != 2">
+          <el-slider
+            v-model="menuForm.sort"
+            show-input
+            :max="50"
+            input-size="mini"
+          ></el-slider>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -130,11 +132,40 @@
 </template>
 
 <script>
-import { addMenu, getMenuSelect, getMenuList } from '@/assets/js/api/menu.js'
+import {
+  addMenu,
+  getMenuList,
+  getRootMenuList,
+  deleteMenuById
+} from '@/assets/js/api/menu.js'
 export default {
   data() {
     return {
       tableData: [],
+      columns: [
+        {
+          label: '菜单名称',
+          prop: 'label'
+        },
+        {
+          label: '菜单图标',
+          prop: 'icon',
+          type: 'template',
+          template: 'icon'
+        },
+        {
+          label: '菜单路径或组件',
+          prop: 'path',
+          type: 'template',
+          template: 'path'
+        },
+        {
+          label: '操作',
+          prop: 'opera',
+          type: 'template',
+          template: 'opera'
+        }
+      ],
       param: {
         condition: ''
       },
@@ -156,14 +187,14 @@ export default {
   },
   methods: {
     loadMenuList() {
-      getMenuList().then((res) => {
+      getMenuList().then(res => {
         if (res.status === 200) {
           this.tableData = res.data
         }
       })
     },
     submitmenuForm() {
-      addMenu(this.menuForm).then((res) => {
+      addMenu(this.menuForm).then(res => {
         if (res.status === 200) {
           this.$message.success('添加菜单成功')
           this.loadMenuList()
@@ -179,13 +210,19 @@ export default {
     },
     showMenuForm() {
       this.menuFormDialogVisible = true
-      getMenuSelect().then((res) => {
+      getRootMenuList().then(res => {
         this.options = res.data
       })
     },
-    // 监听级联选择框事件改变事件
-    handleItemChange() {
-      this.menuForm.parentId = this.$refs['cascader'].getCheckedNodes()[0].value
+    deleteMenu(menuId) {
+      deleteMenuById(menuId).then(res => {
+        if (res.status === 200) {
+          this.$message.success('删除菜单成功')
+          this.loadMenuList()
+        } else {
+          this.$message.error('删除菜单失败')
+        }
+      })
     }
   }
 }
@@ -204,5 +241,8 @@ export default {
 .v-center {
   display: flex;
   align-items: center;
+}
+.zk-table {
+  margin-top: 15px;
 }
 </style>

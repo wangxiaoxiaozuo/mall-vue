@@ -5,7 +5,28 @@
         <img src="../assets/image/shopLogo.png" alt />
         <span>电商后台管理系统</span>
       </div>
-      <el-button type="info" @click="logout">退出</el-button>
+      <!-- <el-button type="info" @click="logout">退出</el-button> -->
+      <el-row>
+        <el-col>
+          <div class="picture">
+            <img src="../assets/image/me.jpg" />
+          </div>
+        </el-col>
+        <el-col>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="退出登录"
+            placement="bottom"
+          >
+            <i
+              class="el-icon-switch-button"
+              style="margin-left: 7px;font-size:30px; color:#eee;cursor: pointer;"
+              @click="logout"
+            ></i>
+          </el-tooltip>
+        </el-col>
+      </el-row>
     </el-header>
     <el-container>
       <el-aside width="240px">
@@ -17,10 +38,14 @@
           unique-opened
           :default-active="navPath"
         >
-          <el-submenu :index="menu.menuId+''" v-for="menu in menuList" :key="menu.menuId">
+          <el-submenu
+            :index="menu.menuId + ''"
+            v-for="menu in menuList"
+            :key="menu.menuId"
+          >
             <template slot="title">
               <i :class="menu.icon"></i>
-              <span>{{menu.name}}</span>
+              <span>{{ menu.label }}</span>
             </template>
             <el-menu-item
               :index="subMenu.path"
@@ -30,7 +55,7 @@
             >
               <template slot="title">
                 <i :class="subMenu.icon"></i>
-                <span>{{subMenu.name}}</span>
+                <span>{{ subMenu.label }}</span>
               </template>
             </el-menu-item>
           </el-submenu>
@@ -44,28 +69,41 @@
 </template>
 
 <script>
-// import Menu from '@/components/Menu'
-import { menu } from '@/assets/js/mock/mock'
+import { mapState } from 'vuex'
+import { getOwnMenuByUserId } from '@/assets/js/api/menu.js'
 
 export default {
-  data () {
+  data() {
     return {
-      menuList: menu,
-      navPath: ''
+      menuList: null,
+      navPath: '',
+      menuRouterList: []
     }
   },
   methods: {
-    logout () {
+    logout() {
       window.sessionStorage.clear()
-      this.$router.push('login')
+      this.$router.push('/user/login')
     },
-    saveNavPath (navPath) {
+    saveNavPath(navPath) {
       window.sessionStorage.setItem('navPath', navPath)
     }
   },
-  created () {
+  created() {
     // 获取当前激活的菜单
     this.navPath = window.sessionStorage.getItem('navPath')
+    const userId = window.sessionStorage.getItem('userId')
+    // 获取当前用户的动态菜单
+    getOwnMenuByUserId(userId).then(res => {
+      if (res.status === 200) {
+        this.menuList = res.data
+      } else {
+        this.$message.error('获取菜单失败')
+      }
+    })
+  },
+  computed: {
+    ...mapState(['userId'])
   }
 }
 </script>
@@ -100,5 +138,17 @@ export default {
 }
 .el-aside {
   box-shadow: 1px 0px 3px #888888;
+}
+.picture {
+  border: 3px solid #eee;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #eee;
+  }
 }
 </style>

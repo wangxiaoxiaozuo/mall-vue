@@ -3,7 +3,7 @@
     <!-- 导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/admin' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
+      <el-breadcrumb-item>系统管理</el-breadcrumb-item>
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 主体显示区域 -->
@@ -11,17 +11,41 @@
       <!-- 添加按钮 -->
       <el-row>
         <el-col>
-          <el-button type="primary" @click="showAddRoleFrom">新增角色</el-button>
+          <el-button type="primary" @click="showAddRoleFrom"
+            >新增角色</el-button
+          >
         </el-col>
       </el-row>
       <!-- 数据展示表格 -->
       <el-table :data="tableData" style="width: 100%" stripe border>
-        <el-table-column type="expand"></el-table-column>
-        <el-table-column prop="roleId" label="权限编号"></el-table-column>
-        <el-table-column prop="roleName" label="权限名称">
-          <template slot-scope="{row}">
-            <el-input v-if="row.edit" v-model="row.roleName" size="mini" style="width:130px;"></el-input>
-            <span v-if="!row.edit">{{row.roleName}}</span>
+        <!-- <el-table-column type="expand"></el-table-column> -->
+        <el-table-column
+          prop="roleId"
+          label="权限编号"
+          width="200px"
+        ></el-table-column>
+        <el-table-column prop="roleName" label="权限名称" width="200px">
+          <template slot-scope="{ row }">
+            <el-input
+              v-if="row.edit"
+              v-model="row.roleName"
+              size="mini"
+              style="width:130px;"
+              clearable
+            ></el-input>
+            <span v-if="!row.edit">{{ row.roleName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="roleCode" label="权限码">
+          <template slot-scope="{ row }">
+            <el-input
+              v-if="row.edit"
+              v-model="row.roleCode"
+              size="mini"
+              style="width:130px;"
+              clearable
+            ></el-input>
+            <el-tag type="warning" v-if="!row.edit">{{ row.roleCode }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -30,28 +54,32 @@
               size="mini"
               type="primary"
               icon="el-icon-edit"
-              @click="scope.row.edit=!scope.row.edit"
+              @click="scope.row.edit = !scope.row.edit"
               v-if="!scope.row.edit"
-            >编辑</el-button>
+              >编辑</el-button
+            >
             <el-button
               size="mini"
               type="primary"
               icon="el-icon-check"
               v-if="scope.row.edit"
               @click="updateRole(scope.row)"
-            >保存</el-button>
+              >保存</el-button
+            >
             <el-button
               size="mini"
               type="danger"
               icon="el-icon-delete"
               @click="deleteRole(scope.row.roleId)"
-            >删除</el-button>
+              >删除</el-button
+            >
             <el-button
               size="mini"
               type="warning"
               icon="el-icon-setting"
               @click="showGrantMenuTree(scope.row)"
-            >授权菜单</el-button>
+              >授权菜单</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -67,7 +95,7 @@
       <el-tree
         :data="menuData"
         show-checkbox
-        node-key="value"
+        node-key="menuId"
         default-expand-all
         :default-checked-keys="defKeys"
         ref="treeRef"
@@ -89,6 +117,9 @@
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="addRoleForm.roleName"></el-input>
         </el-form-item>
+        <el-form-item label="角色码值" prop="roleCode">
+          <el-input v-model="addRoleForm.roleCode"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addRoledialogVisible = false">取 消</el-button>
@@ -99,8 +130,15 @@
 </template>
 
 <script>
-import { getRoleList, grantMenuToRoleId, getResourceIdsByRoleId, addRole, updateRoleById, deleteUserById } from '@/assets/js/api/role.js'
-import { getMenuSelect } from '@/assets/js/api/menu.js'
+import {
+  getRoleList,
+  grantMenuToRoleId,
+  getResourceIdsByRoleId,
+  addRole,
+  updateRoleById,
+  deleteUserById
+} from '@/assets/js/api/role.js'
+import { getMenuList } from '@/assets/js/api/menu.js'
 export default {
   data() {
     return {
@@ -115,10 +153,16 @@ export default {
       roleId: 0,
       addRoledialogVisible: false,
       addRoleForm: {
-        roleName: ''
+        roleName: '',
+        roleCode: ''
       },
       addRoleFormRules: {
-        roleName: [{ required: true, message: '请填写角色名称', trigger: 'blur' }]
+        roleName: [
+          { required: true, message: '请填写角色名称', trigger: 'blur' }
+        ],
+        roleCode: [
+          { required: true, message: '请填写角色对应码值', trigger: 'blur' }
+        ]
       }
     }
   },
@@ -131,7 +175,7 @@ export default {
       this.$set(this.showEdit, row, true)
     },
     getRoleList() {
-      getRoleList().then((res) => {
+      getRoleList().then(res => {
         if (res.status === 200) {
           let data = res.data
           data.forEach(row => {
@@ -144,11 +188,11 @@ export default {
     showGrantMenuTree(roleInfo) {
       this.roleId = roleInfo.roleId
       // 加载 menu tree
-      getMenuSelect().then((res) => {
+      getMenuList().then(res => {
         this.menuData = res.data
       })
       // 加载已经选中的菜单树
-      getResourceIdsByRoleId(roleInfo.roleId).then((res) => {
+      getResourceIdsByRoleId(roleInfo.roleId).then(res => {
         this.defKeys = res.data
       })
       this.grantMenuTreeVisible = true
@@ -158,9 +202,7 @@ export default {
     },
     grantMenu() {
       this.grantMenuTreeVisible = false
-      const keys = [
-        ...this.$refs.treeRef.getCheckedKeys()
-      ]
+      const keys = [...this.$refs.treeRef.getCheckedKeys()]
       grantMenuToRoleId(this.roleId, keys).then(res => {
         if (res.status === 200) {
           this.$message.success('授权成功')
@@ -216,5 +258,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

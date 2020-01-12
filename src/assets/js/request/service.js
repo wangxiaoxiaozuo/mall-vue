@@ -44,7 +44,9 @@ service.interceptors.response.use(
       return res
     }
     let message
-    if (status === 404) {
+    if (status === 401) {
+      message = '401,登录过期,请重新登录'
+    } else if (status === 404) {
       message = '404,你访问的服务不存在'
     } else {
       message = res.data.msg
